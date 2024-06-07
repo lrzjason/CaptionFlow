@@ -4,6 +4,13 @@ Thanks to SmilingWolf who develop wd14 tagger https://huggingface.co/SmilingWolf
 
 BibTex and citation info
 ```
+@inproceedings{ge2024vfc,
+  title={Visual Fact Checker: Enabling High-Fidelity Detailed Caption Generation},
+  author={Ge, Yunhao and Zeng, Xiaohui and Huffman, Jacob Samuel and Lin, Tsung-Yi and Liu, Ming-Yu and Cui, Yin},
+  booktitle={IEEE Conference on Computer Vision and Pattern Recognition ({CVPR})},
+  year={2024}
+}
+
 @article{llama3modelcard,
 
 title={Llama 3 Model Card},
