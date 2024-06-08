@@ -297,13 +297,14 @@ def main():
     start_time = time.time()
     print(f"Script started at {time.ctime(start_time)}")
     
-    image_path = "9.jpg"
+    image_path = "11.jpg"
     image = Image.open(image_path)
     proposal_results = proposal(image)
     verification_result_list = verification(image,proposal_results)
     captioning_result = captioning(verification_result_list)
     result = evaluation(image,captioning_result)
-    print(result)
+    # print(result)
+    print(json.dumps(result, indent=4))
     end_time = time.time()  # get the end time
 
     execution_time = end_time - start_time  # calculate the execution time

@@ -19,7 +19,23 @@ from utils import flush,get_device
 from ram.utils import build_openset_llm_label_embedding
 import json
 import torch.nn as nn
+import os
 
+def get_label_embedding(embedding_path="ram/weight/openset_embedding.npy"):
+    llm_tag_des = "ram/openimages_rare_200_llm_tag_descriptions.json"
+    if not os.path.exists(embedding_path):
+        print('Building tag embedding:')
+        with open(llm_tag_des, 'rb') as fo:
+            llm_tag_des = json.load(fo)
+        openset_label_embedding, openset_categories = build_openset_llm_label_embedding(llm_tag_des)
+        emb_dict={
+            "openset_label_embedding":openset_label_embedding,
+            "openset_categories":openset_categories
+        }
+        torch.save(emb_dict, embedding_path)
+    else:
+        emb_dict = torch.load(embedding_path)
+    return emb_dict['openset_label_embedding'],emb_dict['openset_categories']
 
 class RamPlusModelWrapper(ModelWrapper):
     def __init__(self,device=None,dtype=None,openset=True):
@@ -33,14 +49,11 @@ class RamPlusModelWrapper(ModelWrapper):
         self.pretrained = "ram/weight/ram_plus_swin_large_14m.pth"
         
         
-        self.llm_tag_des = "ram/openimages_rare_200_llm_tag_descriptions.json"
         self.openset = openset
         
         
-        print('Building tag embedding:')
-        with open(self.llm_tag_des, 'rb') as fo:
-            llm_tag_des = json.load(fo)
-        openset_label_embedding, openset_categories = build_openset_llm_label_embedding(llm_tag_des)
+        
+        openset_label_embedding, openset_categories = get_label_embedding()
         self.openset_label_embedding = openset_label_embedding
         self.openset_categories = openset_categories
 
