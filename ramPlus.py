@@ -30,7 +30,7 @@ class RamPlusModelWrapper(ModelWrapper):
         else:
             self.dtype = dtype
         self.image_size = 384
-        self.pretrained = "ram/ram_plus_swin_large_14m.pth"
+        self.pretrained = "ram/weight/ram_plus_swin_large_14m.pth"
         
         
         self.llm_tag_des = "ram/openimages_rare_200_llm_tag_descriptions.json"

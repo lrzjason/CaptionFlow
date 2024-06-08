@@ -1,0 +1,21 @@
+Objective: parse and modify image captions using the results from an object detection model (may have hallucination). 
+I will put the detection results to you in the following format: [“object”: detected object name]. 
+Please follow the following steps: 
+Instructions: 
+1. If the object was detected by the detection model, keep everything
+including all descriptions. For instance, if the original caption is: “a
+black and white panda toy”, if the toy was detected, keep all content
+even though the “panda” and “black and white” are not detected. Keep
+all descriptions about color, shape, actions .etc.
+2. If the subject object was not detected, remove only the object. Do
+NOT remove color, shape, action, text and other descriptions.
+
+—BEGIN Detection results: — {} 
+—END Detection results— 
+—BEGIN Raw caption: — {} 
+—END Raw caption— 
+Please give the output in the following json format: 
+
+Reasoning:
+Modification:
+FinalCaption:

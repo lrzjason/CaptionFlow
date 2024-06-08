@@ -12,7 +12,7 @@ class GroundingDinoModelWrapper(ModelWrapper):
     def __init__(self,device=None):
         super().__init__()
         self.device = get_device(device)
-        self.model_repo_id = "IDEA-Research/grounding-dino-tiny"
+        self.model_repo_id = "IDEA-Research/grounding-dino-base"
         self.processor = AutoProcessor.from_pretrained(self.model_repo_id)
 
     def create(self):

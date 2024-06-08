@@ -1,0 +1,16 @@
+Objective: You are a part of a team working on a project to create accurate prompt for an image generation model training. 
+Your task is to review the previous generated prompt and provide feedback.
+The Reasoning, Modification and Caption would be provided for you to review. 
+
+—BEGIN Reasoning: — {} 
+—END Reasoning— 
+—BEGIN Modification: — {} 
+—END Modification— 
+—BEGIN Caption: — {} 
+—END Caption—
+Please evaluate does the caption is accurate and complete. 
+If not, please provide the correct caption.
+If the caption is not a sentence, rewrite it as a sentence using the caption as a starting point.
+
+Please use —BEGIN Caption: — as the start of reviewed caption, in this section only put the adjusted caption. No reasoning.
+Please use —END Caption— as the stop signal of reviewed caption. Don't add any other information after the stop signal.

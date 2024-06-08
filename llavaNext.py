@@ -20,7 +20,7 @@ class LlavaNextModelWrapper(ModelWrapper):
             self.dtype = dtype
         self.processor = LlavaNextProcessor.from_pretrained(self.model_repo_id)
         
-        self.prompt = "[INST] <image>\nWhat is shown in this image? [/INST] The image shows "
+        self.prompt = "[INST] <image>\nWhat is shown in this image? [/INST]"
     
     def create(self):
         model = LlavaNextForConditionalGeneration.from_pretrained(self.model_repo_id, torch_dtype=self.dtype, low_cpu_mem_usage=True) 

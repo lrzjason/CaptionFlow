@@ -24,7 +24,7 @@ class Glm4ModelWrapper(ModelWrapper):
                         "Be sure to describe everything, and avoid hallucination. Caption:{}")
         
         self.gen_kwargs = {
-            "max_length": 2500, 
+            "max_length": 8000, 
             "do_sample": True, 
             "top_k": 1,
             # 'repetition_penalty': 1.15
@@ -43,7 +43,9 @@ class Glm4ModelWrapper(ModelWrapper):
         if query != None:
             self.query = query
         tokenizer = self.tokenizer
-        query_with_captions = self.query.format(captions)
+        query_with_captions =self. query
+        if len(captions)>0:
+            query_with_captions = self.query.format(captions)
         # print("query_with_captions\n",query_with_captions)
         inputs = tokenizer.apply_chat_template([{"role": "user", "content": query_with_captions}],
                                             add_generation_prompt=True,
