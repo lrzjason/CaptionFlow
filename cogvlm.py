@@ -44,20 +44,13 @@ class CogvlmModelWrapper(ModelWrapper):
         self.prompt = f'Describe the image precisely, detailing every element, interaction and background. Include composition, angle and perspective. Use only facts and concise language; avoid interpretations or speculation:'
         self.starts_with = f'The image showcases '
         
-    def get_device(self,device):
-        if device == None:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        else:
-            self.device = device
-        return self.device
-    
-    def create(self):
+        
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_compute_dtype=self.dtype,
             bnb_4bit_quant_type="fp4",
         )
-        model = AutoModelForCausalLM.from_pretrained(
+        self.model = AutoModelForCausalLM.from_pretrained(
             self.model_repo_id,
             torch_dtype=self.dtype,
             low_cpu_mem_usage=True,
@@ -67,9 +60,10 @@ class CogvlmModelWrapper(ModelWrapper):
             trust_remote_code=True
         ).eval()
         # .to(self.device)
-        return model
-
-    def execute(self, model,image=None,prompt=None,starts_with=None):
+        
+        
+    def execute(self, image=None,prompt=None,starts_with=None):
+        model = self.model
         if prompt != None:
             self.prompt = prompt
         if starts_with != None:

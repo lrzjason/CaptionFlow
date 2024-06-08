@@ -14,12 +14,10 @@ class GroundingDinoModelWrapper(ModelWrapper):
         self.device = get_device(device)
         self.model_repo_id = "IDEA-Research/grounding-dino-base"
         self.processor = AutoProcessor.from_pretrained(self.model_repo_id)
-
-    def create(self):
-        model = AutoModelForZeroShotObjectDetection.from_pretrained(self.model_repo_id).to(self.device)
-        return model
-    
-    def execute(self,model,image=None,query=""):
+        self.model = AutoModelForZeroShotObjectDetection.from_pretrained(self.model_repo_id).to(self.device)
+        
+    def execute(self,image=None,query=""):
+        model = self.model
         processor = self.processor
         inputs = processor(images=image, text=query, return_tensors="pt").to(self.device)
         with torch.no_grad():
@@ -40,6 +38,5 @@ if __name__ == "__main__":
     image_path = "2.webp"
     image = Image.open(image_path)
     groundingDino = GroundingDinoModelWrapper()
-    groundingDino_model = groundingDino.create()
-    result = groundingDino.execute(groundingDino_model,image)
+    result = groundingDino.execute(image)
     print(result)

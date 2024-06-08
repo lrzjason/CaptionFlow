@@ -29,17 +29,15 @@ class Glm4ModelWrapper(ModelWrapper):
             "top_k": 1,
             # 'repetition_penalty': 1.15
         } 
-    
-    def create(self):
-        model = AutoModelForCausalLM.from_pretrained(
+        self.model = AutoModelForCausalLM.from_pretrained(
             self.model_repo_id,
             torch_dtype=self.dtype,
             low_cpu_mem_usage=True,
             trust_remote_code=True
         ).to(self.device).eval()
-        return model
-
-    def execute(self,model,image=None,query=None, captions=""):
+    
+    def execute(self,query=None, captions=""):
+        model = self.model
         if query != None:
             self.query = query
         tokenizer = self.tokenizer

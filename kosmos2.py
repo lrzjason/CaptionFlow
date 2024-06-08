@@ -15,11 +15,9 @@ class Kosmos2ModelWrapper(ModelWrapper):
         self.processor = AutoProcessor.from_pretrained(self.model_repo_id)
         self.prompt = "<grounding> An image of"
     
-    def create(self):
-        model = Kosmos2ForConditionalGeneration.from_pretrained(self.model_repo_id).to(self.device)
-        return model
-
-    def execute(self,model,image=None,prompt=None):
+        self.model = Kosmos2ForConditionalGeneration.from_pretrained(self.model_repo_id).to(self.device)
+    def execute(self,image=None,prompt=None):
+        model = self.model
         if prompt is not None:
             self.prompt = prompt
         processor = self.processor

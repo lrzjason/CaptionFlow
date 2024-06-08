@@ -2,7 +2,7 @@
 
 from PIL import Image
 
-# models
+# ModelWrappers
 from wd14 import WD14ModelWrapper
 from idefics2 import Idefics2ModelWrapper
 from cogvlm import CogvlmModelWrapper
@@ -35,25 +35,13 @@ def proposal(image):
     captions = []
     model_list = [
         {
-            "name":"cogvlm",
-            "modelWrapper":CogvlmModelWrapper
+            "name":"Cogvlm",
+            "model":CogvlmModelWrapper
         },
-        # {
-        #     "name":"idefics2",
-        #     "modelWrapper":Idefics2ModelWrapper
-        # },
-        # {
-        #     "name":"llavaNext",
-        #     "modelWrapper":LlavaNextModelWrapper
-        # },
         {
             "name":"DeepseekVL",
-            "modelWrapper":DeepseekVLModelWrapper
+            "model":DeepseekVLModelWrapper
         },
-        # {
-        #     "name":"kosmos2",
-        #     "modelWrapper":Kosmos2ModelWrapper
-        # },
     ]
     for model_config in model_list:
         text_path = f"stage_1_proposal.{model_config['name']}"
@@ -63,9 +51,10 @@ def proposal(image):
                 "caption": read_caption(text_path)
                 })
         else:
-            modelWrapper = model_config['modelWrapper']()
-            model = modelWrapper.create()
-            caption = modelWrapper.execute(model,image).strip()
+            model = model_config['model']()
+            # model = model.create()
+            # caption = model.execute(model,image).strip()
+            caption = model.execute(image).strip()
             # caption = f"{model_config['name']}_caption:\n {result} \n"
             save_caption(text_path,caption)
             captions.append({
@@ -73,7 +62,7 @@ def proposal(image):
                 "caption": caption
                 })
             # captions.append(caption)
-            del modelWrapper,model
+            del model
             flush()
     
     return captions
@@ -86,11 +75,11 @@ def verification(image,stage1_results):
     llm_model_list = [
         {
             "name":"glm4",
-            "modelWrapper":Glm4ModelWrapper
+            "model":Glm4ModelWrapper
         },
         # {
         #     "name":"llama3",
-        #     "modelWrapper":Llama3ModelWrapper
+        #     "model":Llama3model
         # },
     ]
     
@@ -113,15 +102,15 @@ def verification(image,stage1_results):
         else:
             # collect all stage1_result and mix all of them together
             for stage1_result in stage1_results:
-                stage1_result_caption = stage1_result['caption']
+                # stage1_result_caption = stage1_result['caption']
                 # stage1_name = f"{stage1_result['name']}.{model_config['name']}"
                 if not os.path.exists(text_path) or not os.path.exists(text_path_step2):
                     if created_model == False:
-                        modelWrapper = model_config['modelWrapper']()
-                        model = modelWrapper.create()
+                        model = model_config['model']()
+                        # model = model.create()
                         created_model = True
                     
-                        caption = modelWrapper.execute(model,captions=stage1_result)
+                        caption = model.execute(captions=stage1_result)
                         caption += caption.replace("\n","").strip()
         
             save_caption(text_path,caption)
@@ -131,41 +120,41 @@ def verification(image,stage1_results):
         if os.path.exists(text_path_step2):
             step2_result = read_caption(text_path_step2)
         else:
-            step2_result = modelWrapper.execute(model,query=query,captions=caption)
+            step2_result = model.execute(query=query,captions=caption)
             step2_result = step2_result.replace("_"," ").replace(",",".").replace("\n","").strip().lower()
             save_caption(text_path_step2,step2_result)
         
         verification_result_list.append({
             "name": model_config['name'],
-            "modelWrapper": model_config['modelWrapper'],
+            "model": model_config['model'],
             # "stage1_name": stage1_name,
-            "stage1_result": stage1_result_caption,
+            # "stage1_result": stage1_result_caption,
             "stage2_step1_result": caption,
             "stage2_step2_result": step2_result,
             "stage2_step3_result_captions": []
         })
         
         if created_model:
-            del modelWrapper,model
+            del model
             flush()
     
-    ojbect_detection_list = [
+    object_detection_list = [
         {
             "name":"groundingDino",
-            "modelWrapper": GroundingDinoModelWrapper
+            "model": GroundingDinoModelWrapper
         },
         {
             "name":"wd14",
-            "modelWrapper": WD14ModelWrapper
+            "model": WD14ModelWrapper
         },
         {
             "name":"ramPlus",
-            "modelWrapper": RamPlusModelWrapper
+            "model": RamPlusModelWrapper
         },
     ]
-    for od_model_config in ojbect_detection_list:
+    for od_model_config in object_detection_list:
         created_model = False
-        modelWrapper = None
+        model = None
         model = None
         for verification_result in verification_result_list:
             # if verification_result['stage2_step3_result'] == None:
@@ -178,16 +167,16 @@ def verification(image,stage1_results):
                 caption = read_caption(text_path_step3)
             else:
                 if created_model == False:
-                    modelWrapper = od_model_config['modelWrapper']()
-                    model = modelWrapper.create()
+                    model = od_model_config['model']()
+                    # model = model.create()
                     created_model = True
                 
-                caption = modelWrapper.execute(model,image=image,query=verification_result['stage2_step2_result'])
+                caption = model.execute(image=image,query=verification_result['stage2_step2_result'])
                 caption = caption.replace(", ",". ").strip()
                 save_caption(text_path_step3,caption)
             # verification_result['stage2_step3_result']['caption_list'].append(caption)
             verification_result['stage2_step3_result_captions'].append(caption)
-        del modelWrapper,model
+        del model
         flush()
     
     for verification_result in verification_result_list:
@@ -199,31 +188,24 @@ def captioning(verification_result_list):
     
     result = []
     created_model = False
-    modelWrapper = None
+    model = None
     model = None
     for verification_result in verification_result_list:
         # raw caption
-        stage1_result = verification_result['stage1_result']
+        stage2_step1_result = verification_result['stage2_step1_result']
         stage2_step3_result = verification_result['stage2_step3_result']
         refined_text_path = f"stage_3_captioning_step1.{verification_result['name']}"
         refined_caption = ""
         if os.path.exists(refined_text_path): 
             refined_caption = read_caption(refined_text_path)
-            json_object = json.loads(refined_caption)
-            result.append({
-                'name':verification_result['name'],
-                'Reasoning':json_object['Reasoning'],
-                'Modification':json_object['Modification'],
-                'FinalCaption':json_object['FinalCaption'],
-            })
         else:
             if created_model == False:
-                modelWrapper = verification_result['modelWrapper']()
-                model = modelWrapper.create()
+                model = verification_result['model']()
+                # model = model.create()
                 created_model = True
             # object detection result
-            formated_query = query.format(stage2_step3_result, stage1_result)
-            refined_caption = modelWrapper.execute(model,query=formated_query)
+            formated_query = query.format(stage2_step3_result, stage2_step1_result)
+            refined_caption = model.execute(query=formated_query)
             
             refined_caption = refined_caption.replace('```json',"").replace('```',"").replace("\n","")
             save_caption(refined_text_path,refined_caption)
@@ -245,14 +227,14 @@ def captioning(verification_result_list):
             caption_result['ReviewedCaption'] = read_caption(reviewed_text_path)
         else:
             if created_model == False:
-                modelWrapper = verification_result['modelWrapper']()
-                model = modelWrapper.create()
+                model = verification_result['model']()
+                # model = model.create()
                 created_model = True
             # object detection result
             formated_query = review_query.format(caption_result['Reasoning'], 
                                                  caption_result['Modification'], 
                                                  caption_result['FinalCaption'])
-            reviewed_caption = modelWrapper.execute(model,query=formated_query)
+            reviewed_caption = model.execute(query=formated_query)
             
             save_caption(reviewed_text_path+".raw",reviewed_caption)
             
@@ -268,26 +250,54 @@ def captioning(verification_result_list):
             save_caption(reviewed_text_path,reviewed_caption)
             caption_result['ReviewedCaption'] = reviewed_caption
     if created_model == True:
-        del modelWrapper,model
+        del model
         flush()
     
             
     return result
 
 def evaluation(image,result_list):
+    captions = []
+    # collect all final output
     for result in result_list:
-        content = result['ReviewedCaption']
+        # content = result['ReviewedCaption']
+        # score = hpsv2.score(image, content, hps_version="v2.1")[0]
+        
+        # result['ReviewedCaption_hpsv2_score'] = format(score, '.4f')
+        captions.append({
+            "name": f"CaptionFlow.final.{result['name']}",
+            "caption": result['ReviewedCaption']
+        })
+    # collect all raw vlm output
+    model_list = [
+        {
+            "name":"Cogvlm",
+        },
+        {
+            "name":"DeepseekVL",
+        },
+    ]
+    for model_config in model_list:
+        text_path = f"stage_1_proposal.{model_config['name']}"
+        captions.append({
+                "name": model_config['name'],
+                "caption": read_caption(text_path)
+                })
+        
+    # collect all raw vlm output
+    for caption in captions:
+        content = caption['caption']
         score = hpsv2.score(image, content, hps_version="v2.1")[0]
         
-        result['ReviewedCaption_hpsv2_score'] = format(score, '.4f')
+        caption['score'] = format(score, '.4f')
     
-    return result_list
+    return captions
 def main():
     
     start_time = time.time()
     print(f"Script started at {time.ctime(start_time)}")
     
-    image_path = "7.png"
+    image_path = "9.jpg"
     image = Image.open(image_path)
     proposal_results = proposal(image)
     verification_result_list = verification(image,proposal_results)

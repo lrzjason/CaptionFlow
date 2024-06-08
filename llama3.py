@@ -22,25 +22,12 @@ class Llama3ModelWrapper(ModelWrapper):
                         "Include composition, angle and perspective based on the following multiple captions "
                         "by different (possibly incorrect) people describing the same scene. "
                         "Be sure to describe everything, and avoid hallucination. Caption:{}")
+        self.model = AutoModelForCausalLM.from_pretrained(self.model_repo_id, torch_dtype=self.dtype, device_map="auto")
         
-        # self.gen_kwargs = {
-        #     'min_new_tokens':100,
-        #     'max_new_tokens':350,
-        #     'num_beams':1,
-        #     'length_penalty':1,
-        #     'top_k':60,
-        #     'top_p':0.6,
-        #     'repetition_penalty': 1.15,
-        #     'no_repeat_ngram_size':0,
-        #     "do_sample": True,
-        #     "temperature": 0.6,
-        # } 
         
-    def create(self):
-        model = AutoModelForCausalLM.from_pretrained(self.model_repo_id, torch_dtype=self.dtype, device_map="auto")
-        return model
 
-    def execute(self,model,image=None,query=None,captions=""):
+    def execute(self,image=None,query=None,captions=""):
+        model = self.model
         tokenizer = self.tokenizer
         if query != None:
             self.query = query

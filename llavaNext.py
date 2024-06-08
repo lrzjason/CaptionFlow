@@ -21,13 +21,12 @@ class LlavaNextModelWrapper(ModelWrapper):
         self.processor = LlavaNextProcessor.from_pretrained(self.model_repo_id)
         
         self.prompt = "[INST] <image>\nWhat is shown in this image? [/INST]"
-    
-    def create(self):
         model = LlavaNextForConditionalGeneration.from_pretrained(self.model_repo_id, torch_dtype=self.dtype, low_cpu_mem_usage=True) 
         model.to(self.device)
-        return model
-
-    def execute(self,model,image=None):
+        self.model = model
+    
+    def execute(self,image=None):
+        model = self.model
         processor = self.processor
         # image = Image.open(requests.get(url, stream=True).raw)
         prompt = self.prompt
@@ -45,6 +44,5 @@ if __name__ == "__main__":
     image_path = "2.webp"
     image = Image.open(image_path)
     llaveNext = LlavaNextModelWrapper()
-    llaveNext_model = llaveNext.create()
-    result = llaveNext.execute(llaveNext_model,image)
+    result = llaveNext.execute(image)
     print(result)

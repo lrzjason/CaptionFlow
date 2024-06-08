@@ -27,8 +27,6 @@ class DeepseekVLModelWrapper(ModelWrapper):
         self.tokenizer = self.processor.tokenizer
         
         self.query = "Describe the image precisely, detailing every element, interaction and background. Include composition, angle and perspective. Use only facts and concise language; avoid interpretations or speculation:"
-        
-    def create(self):
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_compute_dtype=self.dtype,
@@ -41,14 +39,15 @@ class DeepseekVLModelWrapper(ModelWrapper):
             trust_remote_code=True,
             quantization_config=quantization_config
         ).eval()
-        # .to(self.device).eval()
         
         vl_gpt: MultiModalityCausalLM = AutoModelForCausalLM.from_pretrained(self.model_repo_id, trust_remote_code=True)
         vl_gpt = vl_gpt.to(self.dtype).cuda().eval()
+        
+        self.model = vl_gpt
+        
 
-        return model
-
-    def execute(self,model,image=None,query=None, captions=""):
+    def execute(self,image=None,query=None):
+        model = self.model
         if query != None:
             self.query = query
         tokenizer = self.tokenizer
@@ -94,6 +93,5 @@ if __name__ == "__main__":
     image_path = "2.webp"
     image = Image.open(image_path)
     deepseek = DeepseekVLModelWrapper()
-    deepseek_model = deepseek.create()
-    result = deepseek.execute(deepseek_model,image)
+    result = deepseek.execute(image)
     print(result)

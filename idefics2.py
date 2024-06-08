@@ -19,14 +19,14 @@ class Idefics2ModelWrapper(ModelWrapper):
         else:
             self.dtype = dtype
         self.processor = AutoProcessor.from_pretrained(self.model_repo_id)
-    
-    def create(self):
+        
+        
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_compute_dtype=self.dtype,
             bnb_4bit_quant_type="fp4",
         )
-        model = AutoModelForVision2Seq.from_pretrained(
+        self.model = AutoModelForVision2Seq.from_pretrained(
             self.model_repo_id,
             low_cpu_mem_usage=True,
             torch_dtype=self.dtype,
@@ -34,10 +34,10 @@ class Idefics2ModelWrapper(ModelWrapper):
             # bnb_4bit_compute_dtype=self.dtype
             quantization_config=quantization_config
         ).eval()
-        # .to(self.device)
-        return model
+    
 
-    def execute(self,model,image=None):
+    def execute(self,image=None):
+        model = self.model
         # Create inputs
         messages = [
             {
