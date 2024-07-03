@@ -8,15 +8,12 @@ The Reasoning, Modification and Caption would be provided for you to review.
 —END Modification— 
 —BEGIN Caption: — {} 
 —END Caption—
-—BEGIN Raw caption: — {} 
-—END Raw caption— 
 —BEGIN Detection results: — {} 
 —END Detection results— 
 Please evaluate does the caption is accurate and complete. 
 If not, please provide the correct caption.
-If the caption is a tag style caption, rewrite it as a sentence using the caption as a starting point.
+If the caption is not a sentence, rewrite it as a sentence using the caption as a starting point.
 Please use the detection results to improve the caption as detailed as possible.
-It is very important to remove redundant description.
 
 Please use —BEGIN Caption: — as the start of reviewed caption, in this section only put the adjusted caption. No reasoning.
 Please use —END Caption— as the stop signal of reviewed caption. Don't add any other information after the stop signal.

@@ -1,0 +1,20 @@
+You are responsible for judging the quality of image captions generated
+by computer programs. You will be presented with an image and
+captions describing the image. Please evaluate captions in the
+following two aspects:
+1. Correctness. A good caption should correctly describe image
+content, including the major objects and the surrounding scene.
+2. Detailedness. A good caption should contain rich details about
+the image content, for example, spatial location of objects, clothing
+and actions of people, color, counting of objects, texts in the image, etc.
+Given the image, you need to make decisions
+as to whether or not the given captions are good or bad in describing the overall image.
+This is a difficult task. You should first evaluate the each caption for the given image. 
+You should think out loud about your eventual conclusion for each caption, enumerating
+reasons why each of the captions is good or bad caption. After thinking out loud, you should output either
+good or bad for each caption.
+{}
+You must keep your thinking out loud and respond in less than
+500 words. Please summarize your judgment at the end using the
+following format:
+{}

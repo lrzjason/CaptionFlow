@@ -52,11 +52,10 @@ def proposal(image):
         #     "name":"llavaNext",
         #     "model":LlavaNextModelWrapper
         # },
-        
-        {
-            "name":"florence",
-            "model":FlorenceLargeFtModelWrapper
-        },
+        # {
+        #     "name":"florence",
+        #     "model":FlorenceLargeFtModelWrapper
+        # },
         {
             "name":"phi3Vision",
             "model":Phi3VisionModelWrapper
@@ -380,21 +379,52 @@ def evaluation(image,result_list):
 
 @torch.no_grad()    
 def main():
+    result_prefix = "result_"
     
     start_time = time.time()
     print(f"Script started at {time.ctime(start_time)}")
     
-    image_path = "16.png"
+    image_path = "15.png"
     image = Image.open(image_path).convert("RGB")
-    proposal_results = proposal(image)
-    verification_result_list = verification(image,proposal_results)
-    captioning_result = captioning(verification_result_list)
-    result = evaluation(image,captioning_result)
-    result_path = "stage_4_evaluation.txt"
-    save_caption(result_path,result)
-    # print(result)
-    # print('Based on the image description provided by my analysis and the captions from different generators, Please score each caption in accuracy,detail and coherence out of 10:')
-    # print(json.dumps(result, indent=4))
+    
+    
+    object_detection_list = [
+        {
+            "name":"wd14",
+            "model": WD14ModelWrapper
+        },
+        # {
+        #     "name":"ramPlus",
+        #     "model": RamPlusModelWrapper
+        # },
+    ]
+    tags = ""
+    for od_model_config in object_detection_list:
+        model = od_model_config['model']()
+        caption = model.execute(image=image)
+        caption = caption.replace(", ",". ").strip()
+        tags_path = f"{result_prefix}{od_model_config['name']}"
+        save_caption(tags_path,caption)
+        tags += caption
+        del model
+        flush()
+    
+    model_list = [
+        {
+            "name":"phi3Vision",
+            "model":Phi3VisionModelWrapper,
+            "query":"<|image_1|>\nWhat is shown in this image?Please make use of the following tags which might support the image's features but it also might contains hallucinations:{}"
+        },
+    ]
+    for model_config in model_list:
+        model = model_config['model']()
+        query = model_config["query"].format(tags)
+        caption = model.execute(image,query=query).strip()
+        caption_path_tags = f"{result_prefix}{model_config['name']}"
+        save_caption(caption_path_tags,caption)
+        del model
+        flush()
+    
     end_time = time.time()  # get the end time
 
     execution_time = end_time - start_time  # calculate the execution time

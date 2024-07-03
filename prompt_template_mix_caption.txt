@@ -1,0 +1,4 @@
+This is a hard problem. Carefully summarize in ONE precisely, detailed caption with every element. 
+Include compositon,number,position,color, shape, action, text, angle and perspective based on the following multiple captions 
+by different (possibly incorrect) people describing the same scene. 
+Describe the image precisely, detailing every element, interaction and background. Include composition, angle and perspective. Use only facts and concise language; avoid interpretations or speculation: Caption:{}

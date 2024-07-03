@@ -18,10 +18,7 @@ class Glm4ModelWrapper(ModelWrapper):
             self.dtype = dtype
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_repo_id, trust_remote_code=True)
         
-        self.query = ("This is a hard problem. Carefully summarize in ONE precisely, detailed caption with every element. "
-                        "Include composition, angle and perspective based on the following multiple captions "
-                        "by different (possibly incorrect) people describing the same scene. "
-                        "Be sure to describe everything, and avoid hallucination. Caption:{}")
+        self.query = ("{}")
         
         self.gen_kwargs = {
             "max_length": 8000, 
@@ -29,18 +26,25 @@ class Glm4ModelWrapper(ModelWrapper):
             "top_k": 1,
             # 'repetition_penalty': 1.15
         } 
+        
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=self.dtype,
+            bnb_4bit_quant_type="fp4",
+        )
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_repo_id,
-            torch_dtype=self.dtype,
+            # torch_dtype=self.dtype,
+            quantization_config=quantization_config,
             low_cpu_mem_usage=True,
             trust_remote_code=True
         ).to(self.device).eval()
     
     def execute(self,query=None, captions=""):
         model = self.model
+        tokenizer = self.tokenizer
         if query != None:
             self.query = query
-        tokenizer = self.tokenizer
         query_with_captions =self. query
         if len(captions)>0:
             query_with_captions = self.query.format(captions)

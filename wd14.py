@@ -50,7 +50,7 @@ class WD14ModelWrapper(ModelWrapper):
         self.tag_only = True
         self.character_category = 4
         self.model = onnxruntime.InferenceSession(self.model_path, providers=['CUDAExecutionProvider'])
-    def execute(self,image=None,query=None,filter_tags=['1girl','solo','questionable','general','sensitive'], tag_threshold=0.4):
+    def execute(self,image=None,query=None,filter_tags=['1girl','solo','questionable','general','sensitive'], tag_threshold=0.7):
         model = self.model
         tags_scores = []
         processed_image = preprocess_image(image)
@@ -94,5 +94,11 @@ class WD14ModelWrapper(ModelWrapper):
 
 
 
+if __name__ == "__main__":
+    image_path = "1.png"
+    image = Image.open(image_path)
+    wd14 = WD14ModelWrapper()
+    result = wd14.execute(image)
+    print(result)
 
                 

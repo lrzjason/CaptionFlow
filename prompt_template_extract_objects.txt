@@ -1,0 +1,6 @@
+I want to use an object detector to check the correctness of an image caption 
+obtained by an image caption model. Can you help to parse the caption below and 
+list all nouns that could be detected with an object detection model in the image? 
+Please only list the object name and ignore the description. 
+Please use singular for all listed nouns. Caption: {}. 
+Please concatenate them together with “. ” as separation.
