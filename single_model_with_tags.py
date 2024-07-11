@@ -377,6 +377,14 @@ def evaluation(image,result_list):
     
     # return captions
 
+def replace_unwanted(content):
+    if " tag" in content:
+        start = content.find(" tag")
+        sentence_start = content.rfind('.', 0, start) + 1
+        content = content[:sentence_start]
+    content = content.strip()
+    return content
+
 @torch.no_grad()    
 def main():
     result_prefix = "result_"
@@ -384,9 +392,11 @@ def main():
     start_time = time.time()
     print(f"Script started at {time.ctime(start_time)}")
     
-    image_path = "15.png"
-    image = Image.open(image_path).convert("RGB")
+    # image_path = "15.png"
+    # image = Image.open(image_path).convert("RGB")
     
+    input_dir = "F:/ImageSet/hunyuan_test_temp/1_creative_photo"
+    files = os.listdir(input_dir)
     
     object_detection_list = [
         {
@@ -398,14 +408,24 @@ def main():
         #     "model": RamPlusModelWrapper
         # },
     ]
-    tags = ""
+    image_types = [".png", ".jpg", ".jpeg", ".webp"]
+    
+    print("creating tagging files")
     for od_model_config in object_detection_list:
         model = od_model_config['model']()
-        caption = model.execute(image=image)
-        caption = caption.replace(", ",". ").strip()
-        tags_path = f"{result_prefix}{od_model_config['name']}"
-        save_caption(tags_path,caption)
-        tags += caption
+        for file in files:
+            for image_type in image_types:
+                if file.endswith(image_type):
+                    tags_path = f"{input_dir}/{file}.{od_model_config['name']}"
+                    if os.path.exists(tags_path):
+                        continue
+                    image = Image.open(os.path.join(input_dir,file)).convert("RGB")
+                    caption = model.execute(image=image)
+                    caption = caption.replace(", ",". ").strip()
+                    # save with same name of input files
+                    save_caption(tags_path,caption)
+                    del image
+                    flush()
         del model
         flush()
     
@@ -416,12 +436,23 @@ def main():
             "query":"<|image_1|>\nWhat is shown in this image?Please make use of the following tags which might support the image's features but it also might contains hallucinations:{}"
         },
     ]
+    print("captioning with tags")
     for model_config in model_list:
         model = model_config['model']()
-        query = model_config["query"].format(tags)
-        caption = model.execute(image,query=query).strip()
-        caption_path_tags = f"{result_prefix}{model_config['name']}"
-        save_caption(caption_path_tags,caption)
+        for file in files:
+            for image_type in image_types:
+                if file.endswith(image_type):
+                    caption_path = f"{input_dir}/{file}.{model_config['name']}"
+                    if os.path.exists(caption_path):
+                        continue
+                    image = Image.open(os.path.join(input_dir,file)).convert("RGB")
+                    tags = read_caption(f"{input_dir}/{file}.{object_detection_list[0]['name']}")
+                    query = model_config["query"].format(tags)
+                    caption = model.execute(image,query=query).strip()
+                    caption = replace_unwanted(caption)
+                    save_caption(caption_path,caption)
+                    del image
+                    flush()
         del model
         flush()
     

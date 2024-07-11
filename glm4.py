@@ -38,7 +38,8 @@ class Glm4ModelWrapper(ModelWrapper):
             quantization_config=quantization_config,
             low_cpu_mem_usage=True,
             trust_remote_code=True
-        ).to(self.device).eval()
+        ).eval()
+        # .to(self.device).eval()
     
     def execute(self,query=None, captions=""):
         model = self.model

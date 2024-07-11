@@ -24,7 +24,7 @@ class Phi3VisionModelWrapper(ModelWrapper):
         # self.prompt = "[INST] <image>\nWhat is shown in this image? [/INST]"
         self.query = "<|image_1|>\nWhat is shown in this image?"
         model = AutoModelForCausalLM.from_pretrained(self.model_repo_id, trust_remote_code=True,  _attn_implementation='eager') 
-        model.to(self.device)
+        model.to(self.device,dtype=self.dtype)
         self.model = model
     
     def execute(self,image=None,query=None, captions=""):
@@ -49,7 +49,7 @@ class Phi3VisionModelWrapper(ModelWrapper):
             image_list.append(image)
         else:
             image_list = None
-        inputs = processor(prompt, image_list, return_tensors="pt").to(self.device)
+        inputs = processor(prompt, image_list, return_tensors="pt").to(self.device,dtype=self.dtype)
         generation_args = { 
             "max_new_tokens": 500, 
             "temperature": 0.0, 

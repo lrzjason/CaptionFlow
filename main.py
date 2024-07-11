@@ -18,6 +18,7 @@ from Owlv2 import Owlv2ModelWrapper
 from florenceLargeFt import FlorenceLargeFtModelWrapper
 from phi3Vision import Phi3VisionModelWrapper
 from llavaSom import LlavaSomModelWrapper
+from cogFlorenceLargeFt import CogFlorenceLargeFtModelWrapper
 
 import hpsv2
 from textblob import TextBlob
@@ -40,10 +41,10 @@ def read_caption(text_path):
 def proposal(image):
     captions = []
     model_list = [
-        # {
-        #     "name":"Cogvlm",
-        #     "model":CogvlmModelWrapper
-        # },
+        {
+            "name":"Cogvlm",
+            "model":CogvlmModelWrapper
+        },
         # {
         #     "name":"DeepseekVL",
         #     "model":DeepseekVLModelWrapper
@@ -53,9 +54,13 @@ def proposal(image):
         #     "model":LlavaNextModelWrapper
         # },
         
+        # {
+        #     "name":"florence",
+        #     "model":FlorenceLargeFtModelWrapper
+        # },
         {
-            "name":"florence",
-            "model":FlorenceLargeFtModelWrapper
+            "name":"cogFlorence",
+            "model":CogFlorenceLargeFtModelWrapper
         },
         {
             "name":"phi3Vision",
@@ -320,9 +325,9 @@ def evaluation(image,result_list):
     })
     # collect all raw vlm output
     model_list = [
-        # {
-        #     "name":"Cogvlm",
-        # },
+        {
+            "name":"Cogvlm",
+        },
         # {
         #     "name":"DeepseekVL",
         # },
@@ -330,9 +335,13 @@ def evaluation(image,result_list):
         #     "name":"LlavaNext",
         # },
         
+        # {
+        #     "name":"florence",
+        #     "model":FlorenceLargeFtModelWrapper
+        # },
         {
-            "name":"florence",
-            "model":FlorenceLargeFtModelWrapper
+            "name":"cogFlorence",
+            "model":CogFlorenceLargeFtModelWrapper
         },
         {
             "name":"phi3Vision",
@@ -384,7 +393,7 @@ def main():
     start_time = time.time()
     print(f"Script started at {time.ctime(start_time)}")
     
-    image_path = "16.png"
+    image_path = "sample/11.png"
     image = Image.open(image_path).convert("RGB")
     proposal_results = proposal(image)
     verification_result_list = verification(image,proposal_results)
