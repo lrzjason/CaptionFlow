@@ -155,14 +155,14 @@ if __name__ == "__main__":
     image_files = [f for f in files if os.path.splitext(f)[-1].lower() in image_exts]
     for image_file in tqdm(image_files,position=2):
         text_file = os.path.splitext(image_file)[0] + ".txt"
-        ori_text_file = os.path.splitext(image_file)[0] + "_ori.txt"
-        tag_content = ""
-        with open(text_file, "r", encoding="utf-8") as f:
-            tag_content = f.read()
+        # ori_text_file = os.path.splitext(image_file)[0] + "_ori.txt"
+        # tag_content = ""
+        # with open(text_file, "r", encoding="utf-8") as f:
+        #     tag_content = f.read()
         
-        if len(tag_content) == 0:
-            print("empty tag content, skip")
-            continue 
+        # if len(tag_content) == 0:
+        #     print("empty tag content, skip")
+        #     continue 
         
         attempt_count = 0
         result = model.execute(image_path=image_file)
@@ -171,18 +171,19 @@ if __name__ == "__main__":
                 result = model.execute(image_path=image_file)
                 attempt_count = attempt_count + 1
         
-        tags = tag_content.split(",")
-        if use_first_tag_as_character:
-            character = tags[0].replace("\\","")
-            other_tags = ", ".join([tag.strip() for tag in tags[1:]])
-        else:
-            other_tags = ", ".join([tag.strip() for tag in tags])
+        other_tags = ""
+        # tags = tag_content.split(",")
+        # if use_first_tag_as_character:
+        #     character = tags[0].replace("\\","")
+        #     other_tags = ", ".join([tag.strip() for tag in tags[1:]])
+        # else:
+        #     other_tags = ", ".join([tag.strip() for tag in tags])
             
-        new_content = f"{prefix}{character}, {result} {other_tags}"
+        new_content = f"{prefix}{character}, {result}{other_tags}"
         # backup tags
-        with open(ori_text_file, "w", encoding="utf-8") as new_f:
-            new_f.write(tag_content)
-            print("bakcup tags: ", ori_text_file)
+        # with open(ori_text_file, "w", encoding="utf-8") as new_f:
+        #     new_f.write(tag_content)
+        #     print("bakcup tags: ", ori_text_file)
             
         # new caption
         with open(text_file, "w", encoding="utf-8") as new_f:
