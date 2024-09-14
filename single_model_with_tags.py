@@ -17,6 +17,7 @@ from joyTagModel import JoyTagModelWrapper
 from Owlv2 import Owlv2ModelWrapper
 from florenceLargeFt import FlorenceLargeFtModelWrapper
 from phi3Vision import Phi3VisionModelWrapper
+from phi3HornyVision import Phi3HornyVisionModelWrapper
 from llavaSom import LlavaSomModelWrapper
 
 import hpsv2
@@ -395,7 +396,8 @@ def main():
     # image_path = "15.png"
     # image = Image.open(image_path).convert("RGB")
     
-    input_dir = "F:/ImageSet/hunyuan_test_temp/1_creative_photo"
+    # input_dir = "F:/ImageSet/hunyuan_test_temp/1_creative_photo"
+    input_dir = "F:/CaptionFlow/sample/test"
     files = os.listdir(input_dir)
     
     object_detection_list = [
@@ -431,8 +433,8 @@ def main():
     
     model_list = [
         {
-            "name":"phi3Vision",
-            "model":Phi3VisionModelWrapper,
+            "name":"phi3HornyVision",
+            "model":Phi3HornyVisionModelWrapper,
             "query":"<|image_1|>\nWhat is shown in this image?Please make use of the following tags which might support the image's features but it also might contains hallucinations:{}"
         },
     ]

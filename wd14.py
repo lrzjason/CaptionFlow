@@ -15,7 +15,11 @@ import gc
 
 from ModelWrapper import ModelWrapper
 from utils import flush
+import random
+from PIL import ImageOps
+import PIL
 
+import glob
 def download_model_files(model_repo_id):
     # Define local paths to save the files
     local_model_path = hf_hub_download(repo_id=model_repo_id, filename='model.onnx')
@@ -23,6 +27,24 @@ def download_model_files(model_repo_id):
 
     return local_model_path, local_tags_path
 
+def clean_text(text):
+    return ''.join([char if ord(char) < 128 else '' for char in text])
+
+def handle_character_name(text):
+    # clear_text = remove_tag_prefix(text)
+    text = text.replace("\\","").replace("(","_").replace(")","").replace(" ","_").replace(",","_").replace(":","_")
+    text = text.replace("__","_")
+    return clean_text(text)
+# based on file size, return lossless, quality
+def get_webp_params(filesize_mb):
+    if filesize_mb <= 2:
+        return (False, 100)
+    if filesize_mb <= 4:
+        return (False, 90)
+    return (False, 80)
+
+# Set the maximum pixels to prevent out of memory error
+PIL.Image.MAX_IMAGE_PIXELS = 933120000
 def preprocess_image(image):
     image = image.convert('RGBA')
     bg = Image.new('RGBA', image.size, 'WHITE')
@@ -50,7 +72,65 @@ class WD14ModelWrapper(ModelWrapper):
         self.tag_only = True
         self.character_category = 4
         self.model = onnxruntime.InferenceSession(self.model_path, providers=['CUDAExecutionProvider'])
-    def execute(self,image=None,query=None,filter_tags=['1girl','solo','questionable','general','sensitive'], tag_threshold=0.7):
+        self.enable_character_caption = True
+        self.characteristic_tags = [
+            '_hair',
+            '_shirt',
+            '_skirt',
+            '_sleeve',
+            'hair_ornament',
+            '_glove',
+            '_dress',
+            '_hat',
+            '_ears',
+            '_ribbon',
+            'twintails',
+            'blue_eyes',
+            'red_eyes',
+            'pink_eyes',
+            'black_eyes',
+            'aqua_eyes',
+            'grey_eyes',
+            'orange_eyes',
+            'brown_eyes',
+            'green_eyes',
+            'purple_eyes',
+            'yellow_eyes',
+            'white_eyes',
+            'blank_eyes',
+            'extra_eyes',
+            'multicolored_eyes',
+            'eyeshadow'
+        ]
+        
+        self.gender_tags = [
+            '1boy',
+            '2boys',
+            '3boys',
+            '4boys',
+            '5boys',
+            '6+boys',
+            'multiple_boys',
+            
+            '1girl',
+            '2girls',
+            '3girls',
+            '4girls',
+            '5girls',
+            '6+girls',
+            'multiple_girls',
+            
+            '1other',
+            '2others',
+            '3others',
+            '4others',
+            '5others',
+            '6+others',
+            'multiple_others'
+        ]
+        
+        self.skip_non_character = False
+    def execute(self,image=None,query=None,filter_tags=['questionable','general','sensitive'], tag_threshold=0.7, character_threshold=0.70):
         model = self.model
         tags_scores = []
         processed_image = preprocess_image(image)
@@ -67,38 +147,128 @@ class WD14ModelWrapper(ModelWrapper):
         averaged_tags_scores.columns = ['name', 'Score', 'category']  # rename columns
         averaged_tags_scores = averaged_tags_scores[averaged_tags_scores['Score'] > tag_threshold]
         averaged_tags_scores.sort_values('Score', ascending=False, inplace=True)
-        # print(averaged_tags_scores)
         
-        tag_string = ""
+        rows = []
+        character_tags = []
+        other_tags = []
+        skipped_tags = []
+        gender_tags = []
+        # find character tags
         for _, row in averaged_tags_scores.iterrows():
-            if self.tag_only:
-                tag = row['name'].replace('_',' ')
-                if tag == '1girl':
-                    tag = 'woman'
-                if tag == '1boy':
-                    tag = 'man'
-                tag_string += f"{tag}, "
+            tag = row['name']
+            if row['category'] == self.character_category:
+                print(f"character: {tag} score: {row['Score']}")
+                if row['Score'] > character_threshold:
+                    character_tags.append(tag)
             else:
-                if row['category'] == self.character_category:
-                    tag_string += f"[characeter_{row['name']}: {row['Score']:.2f}], "
+                rows.append(row)
+        if self.skip_non_character and len(character_tags) == 0:
+            return "",gender_tags,character_tags
+        for row in rows:
+            tag = row['name']
+            if row['category'] != self.character_category:
+                # when character tag is found and enable_character_caption and tag in characteristic_tags, skip it for character training
+                if len(character_tags) > 0 and self.enable_character_caption:
+                    found_characteristic_tag = False
+                    for characteristic_tag in self.characteristic_tags:
+                        if characteristic_tag in tag:
+                            # print("skip characteristic tag:", tag)
+                            found_characteristic_tag = True
+                            break
+                    if found_characteristic_tag:
+                        # skip characteristic tags
+                        skipped_tags.append(tag)
+                        continue
+                if tag in self.gender_tags:
+                    gender_tags.append(tag)
                 else:
-                    tag_string += f"[{row['name']}: {row['Score']:.2f}], "
+                    other_tags.append(tag)
                     
+        random.shuffle(other_tags)
+        all_tags = gender_tags + character_tags + other_tags
+        result = ", ".join(all_tags).replace('_',' ')
         
-        # clear memory
-        del averaged_tags_scores,tags_scores,tags_filtered,result_with_tags,result_df,tags,result,processed_image
+        del averaged_tags_scores,tags_scores,tags_filtered,result_with_tags,result_df,tags,processed_image
         flush()
         
-        # print(tag_string)
-        return tag_string
-
-
+        return result,gender_tags,character_tags
 
 if __name__ == "__main__":
-    image_path = "1.png"
-    image = Image.open(image_path)
-    wd14 = WD14ModelWrapper()
-    result = wd14.execute(image)
-    print(result)
+    # input_dir = "F:/ImageSet/kolors_realistic"
+    # input_dir = "F:/ImageSet/kolors_train_ai_gen/test"
+    # input_dir = "F:/ImageSet/kolors_train_ai_gen/unclassified"
+    input_dir = "F:/ImageSet/kolors_cosplay/caption"
+    output_dir =  "F:/ImageSet/kolors_cosplay/caption_output"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    gender_list = ["male","female","other"]
+    for gender in gender_list:
+        gender_subdir_path = os.path.join(output_dir, gender)
+        os.makedirs(gender_subdir_path, exist_ok=True)
+        
+    
+    files = glob.glob(f"{input_dir}/**", recursive=True)
+    image_exts = [".png",".jpg",".jpeg",".webp"]
+    image_files = [f for f in files if os.path.splitext(f)[-1].lower() in image_exts]
+    model = WD14ModelWrapper()
+    # loop input_dir for each image
+    for image_path in tqdm(image_files):
+        # image_path = os.path.join(input_dir, image_path)
+        filename,ext = os.path.splitext(os.path.basename(image_path))
+        print(image_path)
+        
+        possible_text_files = [
+            os.path.join(output_dir, "male", filename + ".txt"),
+            os.path.join(output_dir, "female", filename + ".txt"),
+            os.path.join(output_dir, "other", filename + ".txt")
+        ]
+        exist_path = ""
+        for text_file in possible_text_files:
+            if os.path.exists(text_file): 
+                exist_path = text_file
+                break
+        if exist_path != "":
+            print(f"{exist_path} exists. Skipped")
+            continue
+        
+        image = Image.open(image_path).convert('RGB')
+        result,gender_tags,character_tags = model.execute(image)
+        
+        # skipped non character images
+        if result == "":
+            print(f"Skipped non character image: {image_path}")
+            continue
+        gender_subdir = "male"
+        if len(gender_tags) > 0:
+            for tag in gender_tags:
+                if 'other' in tag:
+                    gender_subdir = "other"
+                if 'girl' in tag:
+                    gender_subdir = "female"
+        
+        character_path = os.path.join(output_dir, gender_subdir)
+        if len(character_tags) > 0:
+            ascii_name = handle_character_name(character_tags[0])
+            character_path = os.path.join(output_dir, gender_subdir, ascii_name)
+            
+        print(character_path)
+        os.makedirs(character_path, exist_ok=True)
+        text_file = os.path.join(character_path, filename + ".txt")
+        
+        output_image = os.path.join(character_path, filename + ".webp")
+        try:
+            with Image.open(image_path) as image:
+                # exif = image.info['exif']
+                image = ImageOps.exif_transpose(image)
+                lossless, quality = (False, 90)
+                image.save(output_image, 'webp', optimize = True, quality = quality, lossless = lossless)
+                print("image save to ", output_image)
+        except:
+            print(f"Error in file {image_path}")
+            os.remove(image_path)
+            print(f"Removed file {image_path}")
 
-                
+        with open(text_file, "w", encoding="utf8") as f: 
+            f.write(result)
+        print("text save to ", text_file)
+        

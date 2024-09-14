@@ -16,7 +16,7 @@ class FlorenceLargeFtModelWrapper(ModelWrapper):
     def __init__(self,device=None,dtype=None,tokenizer_repo_id=None):
         super().__init__()
         self.device = get_device(device)
-        self.model_repo_id = "microsoft/Florence-2-large-ft"
+        self.model_repo_id = "gokaygokay/Florence-2-SD3-Captioner"
         if tokenizer_repo_id == None:
             self.tokenizer_repo_id = self.model_repo_id
         if dtype == None:
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     # image = Image.open(image_path)
     
     # input_dir = "E:/Development/Bilibili-Image-Grapple/classification/output/bomiao"
-    input_dir = "F:/ImageSet/pony_caption_output/"
+    input_dir = "F:/ImageSet/kolors_cosplay/ai_anime/female/aegir_azur_lane"
     # output_dir = "E:/Development/Bilibili-Image-Grapple/classification/output/bomiao_crop_watermark"
     # os.makedirs(output_dir, exist_ok=True)
     files = glob.glob(f"{input_dir}/**", recursive=True)
@@ -109,23 +109,24 @@ if __name__ == "__main__":
         # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # image = Image.open(image_path).convert('RGB')
         result = model.execute(image)
+        print(result)
         
         # read text file
-        with open(text_file, "r", encoding="utf-8") as f:
-            text = f.read()
-            new_content = "二次元动漫风格, anime artwork, " + result + ", " + text
-            # rename original text file to _ori.txt
-            old_text_file = text_file.replace(".txt","_ori.txt")
-            if os.path.exists(old_text_file):
-                continue
-            # save new content to text file
-            with open(old_text_file, "w", encoding="utf-8") as ori_f:
-                ori_f.write(text)
-                print("save ori content to text file: ", old_text_file)
-            # save new content to text file
-            with open(text_file, "w", encoding="utf-8") as new_f:
-                new_f.write(new_content)
-                print("save new content to text file: ", text_file)
+        # with open(text_file, "r", encoding="utf-8") as f:
+        #     text = f.read()
+        #     new_content = "二次元动漫风格, anime artwork, " + result + ", " + text
+        #     # rename original text file to _ori.txt
+        #     old_text_file = text_file.replace(".txt","_ori.txt")
+        #     if os.path.exists(old_text_file):
+        #         continue
+        #     # save new content to text file
+        #     with open(old_text_file, "w", encoding="utf-8") as ori_f:
+        #         ori_f.write(text)
+        #         print("save ori content to text file: ", old_text_file)
+        #     # save new content to text file
+        #     with open(text_file, "w", encoding="utf-8") as new_f:
+        #         new_f.write(new_content)
+        #         print("save new content to text file: ", text_file)
             
         
         # ############# OCR for watermark ################
@@ -157,4 +158,4 @@ if __name__ == "__main__":
         #     cv2.imwrite(output_path, crop_img, [int(cv2.IMWRITE_WEBP_QUALITY), quality])
         # else:
         #     cv2.imwrite(output_path, image, [int(cv2.IMWRITE_WEBP_QUALITY), quality])
-        # # break
+        break

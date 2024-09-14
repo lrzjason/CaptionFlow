@@ -68,15 +68,23 @@ if __name__ == "__main__":
     # image_path = "F:/ImageSet/sd3_test/1_creative_photo/ComfyUI_temp_zpsmu_00236_.png"
     # image = Image.open(image_path)
     model = FlorenceLargeFtMoreDetailedModelWrapper()
-    input_dir = "F:/ImageSet/3dkitten"
+    input_dir = "F:/ImageSet/niji"
     # loop input_dir for each image
     for image_path in os.listdir(input_dir):
-        if not image_path.endswith(".jpg"): continue
         image_path = os.path.join(input_dir, image_path)
+        text_file = os.path.splitext(image_path)[0] + ".txt"
+        if not image_path.endswith(".png"): continue
+        if os.path.exists(text_file): 
+            print("skip exists: ", text_file)
+            continue
+        image_path = os.path.join(input_dir, image_path)
+        print(image_path)
         image = Image.open(image_path)
         result = model.execute(image)
+        
+        # save result as txt with the same name as image file without extension
+        result_path = os.path.join(input_dir, text_file)
+        with open(result_path, "w") as f: f.write(result)
+        print(result_path)
         print(result)
         flush()
-        break
-    # result = model.execute(image)
-    # print(result)
