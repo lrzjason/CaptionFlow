@@ -2,7 +2,15 @@
 
 ## Introduction
 
-CaptionFlow is a tool designed to generate high-fidelity detailed captions for images using the Mistral API. Inspired by the paper "Visual Fact Checker: Enabling High-Fidelity Detailed Caption Generation," this project provides a user-friendly GUI to process batches of images and save captions. We acknowledge the work of SmilingWolf's wd14 tagger, which served as inspiration for this project.
+CaptionFlow is a tool designed to generate high-fidelity detailed captions for images using the Mistral API. 
+Inspired by the paper "Visual Fact Checker: Enabling High-Fidelity Detailed Caption Generation," 
+This project provides a user-friendly GUI to process batches of images and save captions. 
+The each image is processed by multiple Complex Human Instructions (CHI) to different aspect captions.
+For example: 
+- CHI_BLUR would focus on the blurriness of the image.
+- CHI_COLOR would focus on the color of the image.
+- etc
+After all CHI processed, a summary would be made based on all previous result and the caption would be refined to precise and accurate.
 
 ## Installation
 
@@ -59,7 +67,7 @@ Access the GUI through the provided local link.
 - **Directory Path**: Input the path to the directory containing images.
 - **Prefix**: Add a prefix to the generated captions.
 - **API Key (Optional)**: Enter your Mistral API key if not set in `api.json`.
-- **Exclude CHI Types**: Select CHI types to exclude in caption generation.
+- **Exclude CHI Types**: Select CHI types to exclude in caption generation. Default all CHI included.
 - **Drop Rate for CHI**: Adjust the drop rate for CHI types to influence caption generation.
 
 ### Viewing Output
