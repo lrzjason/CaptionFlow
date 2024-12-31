@@ -4,7 +4,7 @@
 
 CaptionFlow is a tool designed to generate high-fidelity detailed captions for images using the Mistral API.
 
-Inspired by the paper "Visual Fact Checker: Enabling High-Fidelity Detailed Caption Generation," 
+Inspired by the paper "Visual Fact Checker: Enabling High-Fidelity Detailed Caption Generation" 
 
 This project provides a user-friendly GUI to process batches of images and save captions. 
 
