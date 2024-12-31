@@ -26,7 +26,7 @@ class MinicpmModelWrapper(ModelWrapper):
         self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_repo_id,trust_remote_code=True)
         
         # self.prompt = "[INST] <image>\nWhat is shown in this image? [/INST]"
-        self.query = "请用中文描述该图片"
+        self.query = "What is in the image detailly?"
         model = AutoModel.from_pretrained(self.model_repo_id, trust_remote_code=True,  attn_implementation='sdpa', torch_dtype=torch.bfloat16) 
         model = model.eval().cuda()
         self.model = model
@@ -85,20 +85,27 @@ if __name__ == "__main__":
     
     # input_dir = "E:/Development/Bilibili-Image-Grapple/classification/output/bomiao"
     # input_dir = "F:/ImageSet/pony_caption_output/"
-    input_dir = "F:/ImageSet/kolors_cosplay/ai_anime/female/aegir_azur_lane"
+    input_dir = "C:/Users/lrzja/Desktop/image_caption"
     # output_dir = "E:/Development/Bilibili-Image-Grapple/classification/output/bomiao_crop_watermark"
     # os.makedirs(output_dir, exist_ok=True)
     files = glob.glob(f"{input_dir}/**", recursive=True)
     image_exts = [".png",".jpg",".jpeg",".webp"]
     image_files = [f for f in files if os.path.splitext(f)[-1].lower() in image_exts]
-    
+    caption_ext = ".txt"
+    model = MinicpmModelWrapper()
     for image_file in tqdm(image_files):
+        text_file = os.path.splitext(image_file)[0] + caption_ext
+        if os.path.exists(text_file): continue
         print(f"\n{image_file}")
         # image_path = os.path.join(input_dir, image_file)
         
-        image = cv2.imread(image_file)
-        # image = Image.open(image_path).convert('RGB')
-        model = MinicpmModelWrapper()
+        # image = cv2.imread(image_file)
+        image = Image.open(image_file).convert('RGB')
         result = model.execute(image)
         print(result)
-        break
+        
+        with open(text_file, "w", encoding="utf-8") as new_f:
+            new_f.write(result)
+            # print("save new caption: ", text_file)
+        
+        # break

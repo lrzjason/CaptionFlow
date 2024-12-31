@@ -97,25 +97,24 @@ def load_image(image_file, input_size=448, max_num=12):
     pixel_values = torch.stack(pixel_values)
     return pixel_values
 
-class InternVL2ModelWrapper(ModelWrapper):
+class MonoInternVLModelWrapper(ModelWrapper):
 
     def __init__(self,device=None,dtype=None,tokenizer_repo_id="lmsys/vicuna-7b-v1.5"):
         super().__init__()
         self.device = get_device(device)
-        self.model_repo_id = 'OpenGVLab/InternVL2-8B'
+        self.model_repo_id = 'OpenGVLab/Mono-InternVL-2B'
         self.tokenizer_repo_id = tokenizer_repo_id
         if dtype == None:
             self.dtype = torch.bfloat16
         else:
             self.dtype = dtype
         # self.prompt = f'Describe the image precisely, detailing every element, interaction and background. Include composition, angle and perspective. Use only facts and concise language; avoid interpretations or speculation:'
-        self.prompt = '<image>\nPlease describe the image in detail and only using one paragraph.'
-        self.starts_with = f'The image showcases '
+        self.prompt = '<image>\nPlease describe the image detailly.'
+        # self.starts_with = f'The image showcases '
         self.model = AutoModel.from_pretrained(
                 self.model_repo_id,
                 torch_dtype=torch.bfloat16,
                 low_cpu_mem_usage=True,
-                use_flash_attn=True,
                 trust_remote_code=True).eval().cuda()
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_repo_id, trust_remote_code=True, use_fast=False)
 
@@ -145,12 +144,8 @@ class InternVL2ModelWrapper(ModelWrapper):
        
 if __name__ == "__main__":
     # F:/ImageSet/kolors_cosplay/train_chibi/chibi
-    # input_dir = "F:/ImageSet/kolors_cosplay/train_vector/vector_person"
-    
-    # input_dir = "F:/ImageSet/kolors_cosplay/train/azami_face"
-    input_dir = "F:/ImageSet/IC_LORA_DIFF_TRAIN/SIDE_BY_SIDE/new"
-    # F:\ImageSet\IC_LORA_DIFF_TRAIN\SIDE_BY_SIDE\new
-    model = InternVL2ModelWrapper()
+    input_dir = "F:/ImageSet/IC_LORA_DIFF_TRAIN/process_png"
+    model = MonoInternVLModelWrapper()
     # prefix = "二次元动漫风格, anime artwork, chibi, "
     prefix = ""
     max_attempt_count = 3
@@ -160,17 +155,17 @@ if __name__ == "__main__":
     image_exts = [".png",".jpg",".jpeg",".webp"]
     image_files = [f for f in files if os.path.splitext(f)[-1].lower() in image_exts]
     
-    # caption_ext = ".vl2"
     caption_ext = ".txt"
+    # caption_ext = ".txt"
     
-    for image_file in tqdm(image_files):
+    for image_file in tqdm(image_files,position=2):
         text_file = os.path.splitext(image_file)[0] + caption_ext
-        if os.path.exists(text_file):
-            continue
+        # if os.path.exists(text_file):
+        #     continue
         attempt_count = 0
         result = model.execute(image_path=image_file)
-        if " sorry" in result:
-            while " sorry" in result and attempt_count < max_attempt_count:
+        if "I'm sorry, but I " in result:
+            while "I'm sorry, but I " in result and attempt_count < max_attempt_count:
                 result = model.execute(image_path=image_file)
                 attempt_count = attempt_count + 1
         

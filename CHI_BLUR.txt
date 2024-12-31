@@ -1,0 +1,24 @@
+Analyze the image provided and describe the usage of blur effects with expert-level detail. Structure your response into the following parts:
+
+Overall Blur Impression:
+Provide a general assessment of how blur is used in the image. Is it used heavily, subtly, or selectively? Does it create a sense of focus, depth, or movement?
+
+Foreground and Background Blur:
+
+Describe how blur is applied to the foreground and/or background.
+Identify if the foreground is sharp and the background is blurred (shallow depth of field), or if the blur is distributed differently.
+Explain how this impacts the visual hierarchy and focus of the image.
+Motion Blur:
+
+Analyze if there are any motion blur effects present.
+Describe where motion blur occurs (e.g., moving objects, light trails).
+Explain how the motion blur conveys a sense of speed, movement, or direction in the composition.
+Focus and Depth:
+Discuss how the use of blur creates a sense of depth in the image. Does the blur simulate a realistic focal plane (as seen in photography), or is it applied artistically to guide the viewer’s attention?
+
+Artistic Impact:
+Explain how the blur enhances the emotional or visual storytelling of the image. Does it create a dreamy atmosphere, draw attention to a subject, or evoke movement?
+
+Final Thoughts:
+Summarize the role of blur in the image and its overall impact on composition, focus, and visual experience.
+Summary all above in one paragraph.

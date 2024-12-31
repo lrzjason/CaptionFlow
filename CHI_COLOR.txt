@@ -1,0 +1,20 @@
+Analyze the image provided and describe the color usage with expert-level detail. Break your response into the following structured parts:
+
+Overall Color Impression:
+Describe the general impression of the colors used in the image. Is it vibrant, muted, harmonious, or chaotic? What emotions or feelings does the color palette evoke?
+
+Color Palette Analysis:
+Identify the dominant colors, secondary colors, and any accent colors. Mention their relationships, such as complementary, analogous, or triadic. Discuss the balance of warm and cool tones.
+
+Mood and Atmosphere:
+Explain how the colors contribute to the overall mood or theme of the image. How do the color choices support or contrast with the subject matter?
+
+Color Placement and Interaction:
+Analyze how the colors are placed throughout the composition. Discuss contrasts, gradients, or focal points created by the colors.
+
+Artistic Techniques:
+If relevant, describe any artistic techniques or principles applied, such as the use of light, shadow, and saturation to emphasize certain elements of the image.
+
+Final Thoughts:
+Provide a brief summary of how the color usage enhances the painting or visual experience as a whole.
+Summary all above in one paragraph.

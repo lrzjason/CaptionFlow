@@ -143,94 +143,89 @@ class InternVL2ModelWrapper(ModelWrapper):
         return response
        
 if __name__ == "__main__":
-    input_dir = "F:/ImageSet/kolors_pony/training/female"
-    output_dir = "F:/ImageSet/kolors_cosplay/train/anime_old"
+    input_dir = "F:/ImageSet/kolors_cosplay/train/shimo/female"
+    output_dir = "F:/ImageSet/kolors_cosplay/train/shimo_new"
     model = InternVL2ModelWrapper()
-    prefix = "二次元动漫风格, anime artwork, "
+    prefix = "真实照片, realistic photograph, shimo "
     
     max_attempt_count = 3
-    # input_dir = "F:/ImageSet/niji"
-    # loop input_dir for each image
-    for series_name in tqdm(os.listdir(input_dir),position=0):
-        series_dir = os.path.join(input_dir, series_name)
-        output_series_dir = os.path.join(output_dir, series_name)
-        os.makedirs(output_series_dir,exist_ok=True)
-        for character_name in tqdm(os.listdir(series_dir),position=1):
-            character_dir = os.path.join(series_dir, character_name)
-            output_character_dir = os.path.join(output_series_dir, character_name)
-            os.makedirs(output_character_dir,exist_ok=True)
+    for character_name in tqdm(os.listdir(input_dir),position=1):
+        character_dir = os.path.join(input_dir, character_name)
+        output_character_dir = os.path.join(input_dir, character_name)
+        os.makedirs(output_character_dir,exist_ok=True)
+        
+        files = glob.glob(f"{character_dir}/**", recursive=True)
+        image_exts = [".png",".jpg",".jpeg",".webp"]
+        image_files = [f for f in files if os.path.splitext(f)[-1].lower() in image_exts]
+        for image_file in tqdm(image_files,position=2):
+            basename = os.path.basename(image_file)
+            filename,ext = os.path.splitext(basename)
+            old_text_file = os.path.splitext(image_file)[0] + ".txt"
+            ori_text_file = os.path.splitext(image_file)[0] + "_ori.txt"
             
-            files = glob.glob(f"{character_dir}/**", recursive=True)
-            image_exts = [".png",".jpg",".jpeg",".webp"]
-            image_files = [f for f in files if os.path.splitext(f)[-1].lower() in image_exts]
-            for image_file in tqdm(image_files,position=2):
-                basename = os.path.basename(image_file)
-                filename,ext = os.path.splitext(basename)
-                old_text_file = os.path.splitext(image_file)[0] + "_ori.txt"
-                
-                output_text_file = os.path.join(output_character_dir, f"{filename}.txt")
-                # skip created
-                if os.path.exists(output_text_file):
-                    continue
-                
-                tag_content = ""
-                with open(old_text_file, "r", encoding="utf-8") as f:
-                    tag_content = f.read()
-                    # skip processed text
-                    # if tag_content.startswith(prefix):
-                    #     continue
-                
-                if len(tag_content) == 0:
-                    print("empty tag content, skip")
-                    continue 
-                
-                
-                output_image = os.path.join(output_character_dir, basename)
-                if not os.path.exists(output_image):
-                    shutil.copy(image_file, output_image)
-                    print("copy image: ", output_image)
-                    
-                output_ori_text = os.path.join(output_character_dir, f"{filename}_ori.txt")
-                if not os.path.exists(output_ori_text):
-                    shutil.copy(old_text_file, output_ori_text)
-                    print("copy output_ori_text: ", output_ori_text)
-                    
-                old_nplatent_file = os.path.splitext(image_file)[0] + ".nplatent"
-                output_nplatent_text = os.path.join(output_character_dir, f"{filename}.nplatent")
-                if not os.path.exists(output_nplatent_text):
-                    shutil.copy(old_nplatent_file, output_nplatent_text)
-                    print("copy old_nplatent_file: ", old_nplatent_file)
-                
-                
-                attempt_count = 0
-                result = model.execute(image_path=image_file)
-                if "I'm sorry, but I " in result:
-                    while "I'm sorry, but I " in result and attempt_count < max_attempt_count:
-                        result = model.execute(image_path=image_file)
-                        attempt_count = attempt_count + 1
-                # print("\n")
-                # print(result)
-                tags = tag_content.split(",")
-                character = tags[0].replace("\\","")
-                other_tags = ", ".join([tag.strip() for tag in tags[1:]])
-                # print(character)
-                # print(other_tags)
+            output_text_file = os.path.join(output_character_dir, f"{filename}.txt")
+            # skip created
+            if os.path.exists(ori_text_file):
+                continue
             
-                new_content = f"{prefix}{character}, {result} {other_tags}"
-                # print(new_content)
-                # text_file = old_text_file.replace("_ori.txt",".txt")
-                # print(old_text_file)
-                # if not os.path.exists(old_text_file):
-                #     with open(old_text_file, "w", encoding="utf-8") as ori_f:
-                #         ori_f.write(tag_content)
-                #         print("save ori content to text file: ", old_text_file)
-                # print(new_content)
+            tag_content = ""
+            with open(old_text_file, "r", encoding="utf-8") as f:
+                tag_content = f.read()
+                # skip processed text
+                # if tag_content.startswith(prefix):
+                #     continue
+            
+            if len(tag_content) == 0:
+                print("empty tag content, skip")
+                continue 
+            
+            
+            output_image = os.path.join(output_character_dir, basename)
+            if not os.path.exists(output_image):
+                shutil.copy(image_file, output_image)
+                print("copy image: ", output_image)
                 
-                # copy image to output
+            output_ori_text = os.path.join(output_character_dir, f"{filename}_ori.txt")
+            if not os.path.exists(output_ori_text):
+                shutil.copy(old_text_file, output_ori_text)
+                print("copy output_ori_text: ", output_ori_text)
                 
-                with open(output_text_file, "w", encoding="utf-8") as new_f:
-                    new_f.write(new_content)
-                    print("save new content to text file: ", output_text_file)
-                # print("image_file: ", image_file)
-                # print(text_file)
-                # print(new_content)
+            # old_nplatent_file = os.path.splitext(image_file)[0] + ".nplatent"
+            # output_nplatent_text = os.path.join(output_character_dir, f"{filename}.nplatent")
+            # if not os.path.exists(output_nplatent_text):
+            #     shutil.copy(old_nplatent_file, output_nplatent_text)
+            #     print("copy old_nplatent_file: ", old_nplatent_file)
+            
+            
+            attempt_count = 0
+            result = model.execute(image_path=image_file)
+            if "I'm sorry, but I " in result:
+                while "I'm sorry, but I " in result and attempt_count < max_attempt_count:
+                    result = model.execute(image_path=image_file)
+                    attempt_count = attempt_count + 1
+            # print("\n")
+            # print(result)
+            tags = tag_content.split(",")
+            character = tags[0].replace("\\","")
+            other_tags = ", ".join([tag.strip() for tag in tags[1:]])
+            # print(character)
+            # print(other_tags)
+        
+            new_content = f"{prefix}{character}, {result} {other_tags}"
+            # print(new_content)
+            # text_file = old_text_file.replace("_ori.txt",".txt")
+            # print(old_text_file)
+            if not os.path.exists(ori_text_file):
+                with open(ori_text_file, "w", encoding="utf-8") as ori_f:
+                    ori_f.write(tag_content)
+                    print("save ori content to text file: ", ori_text_file)
+            # print(new_content)
+            
+            # copy image to output
+            
+            with open(output_text_file, "w", encoding="utf-8") as new_f:
+                new_f.write(new_content)
+                print("save new content to text file: ", output_text_file)
+            # print("image_file: ", image_file)
+            # print(text_file)
+            # print(new_content)

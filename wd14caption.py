@@ -18,7 +18,6 @@ from utils import flush
 import random
 from PIL import ImageOps
 import PIL
-import json
 
 import glob
 def download_model_files(model_repo_id):
@@ -33,7 +32,7 @@ def clean_text(text):
 
 def handle_character_name(text):
     # clear_text = remove_tag_prefix(text)
-    text = text.replace("//","").replace("(","_").replace(")","").replace(" ","_").replace(",","_").replace(":","_")
+    text = text.replace("\\","").replace("(","_").replace(")","").replace(" ","_").replace(",","_").replace(":","_")
     text = text.replace("__","_")
     return clean_text(text)
 # based on file size, return lossless, quality
@@ -131,7 +130,7 @@ class WD14ModelWrapper(ModelWrapper):
         ]
         
         self.skip_non_character = False
-    def execute(self,image=None,query=None,filter_tags=['questionable','general','sensitive'], tag_threshold=0.7, character_threshold=0.70, skip_gender=True, skip_character=True):
+    def execute(self,image=None,query=None,filter_tags=['questionable','general','sensitive'], tag_threshold=0.7, character_threshold=0.70, skip_gender=True):
         model = self.model
         tags_scores = []
         processed_image = preprocess_image(image)
@@ -186,13 +185,8 @@ class WD14ModelWrapper(ModelWrapper):
                     other_tags.append(tag)
                     
         random.shuffle(other_tags)
-        
-        if skip_gender and skip_character:
-            all_tags = other_tags
-        elif skip_gender:
+        if skip_gender:
             all_tags = character_tags + other_tags
-        elif skip_character:
-            all_tags = gender_tags + other_tags
         else:
             all_tags = gender_tags + character_tags + other_tags
         result = ", ".join(all_tags).replace('_',' ')
@@ -203,7 +197,20 @@ class WD14ModelWrapper(ModelWrapper):
         return result,gender_tags,character_tags
 
 if __name__ == "__main__":
-    input_dir = "F:/ImageSet/kolors_cosplay/fashion_split"  
+    # input_dir = "F:/ImageSet/kolors_realistic"
+    # input_dir = "F:/ImageSet/kolors_train_ai_gen/test"
+    # input_dir = "F:/ImageSet/kolors_train_ai_gen/unclassified"
+    # input_dir = "F:/ImageSet/kolors_anime_ai_generated\qaq_part2"
+    input_dir = "F:/ImageSet/cosplay/shimo_cosplay"
+    output_dir =  "F:/ImageSet/kolors_cosplay/train/shimo"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    gender_list = ["male","female","other"]
+    for gender in gender_list:
+        gender_subdir_path = os.path.join(output_dir, gender)
+        os.makedirs(gender_subdir_path, exist_ok=True)
+        
+    
     files = glob.glob(f"{input_dir}/**", recursive=True)
     image_exts = [".png",".jpg",".jpeg",".webp"]
     image_files = [f for f in files if os.path.splitext(f)[-1].lower() in image_exts]
@@ -213,29 +220,59 @@ if __name__ == "__main__":
         # image_path = os.path.join(input_dir, image_path)
         filename,ext = os.path.splitext(os.path.basename(image_path))
         print(image_path)
-        json_dict = {}
-        json_file = image_path.replace(ext,"_wd14.json")
         
-        if os.path.exists(json_file): 
+        possible_text_files = [
+            os.path.join(output_dir, "male", filename + ".txt"),
+            os.path.join(output_dir, "female", filename + ".txt"),
+            os.path.join(output_dir, "other", filename + ".txt")
+        ]
+        exist_path = ""
+        for text_file in possible_text_files:
+            if os.path.exists(text_file): 
+                exist_path = text_file
+                break
+        if exist_path != "":
+            print(f"{exist_path} exists. Skipped")
             continue
-        
         
         image = Image.open(image_path).convert('RGB')
         result,gender_tags,character_tags = model.execute(image)
-        json_dict["tags"] = result
-        # print(result)
-        # print(character_tags)
+        
         # skipped non character images
-        # if result == "":
-        #     print(f"Skipped non character image: {image_path}")
-        #     continue
+        if result == "":
+            print(f"Skipped non character image: {image_path}")
+            continue
+        gender_subdir = "male"
+        if len(gender_tags) > 0:
+            for tag in gender_tags:
+                if 'other' in tag:
+                    gender_subdir = "other"
+                if 'girl' in tag:
+                    gender_subdir = "female"
         
+        character_path = os.path.join(output_dir, gender_subdir)
         if len(character_tags) > 0:
-            json_dict["character"] = ", ".join(character_tags).replace("_"," ")
+            ascii_name = handle_character_name(character_tags[0])
+            character_path = os.path.join(output_dir, gender_subdir, ascii_name)
+            
+        print(character_path)
+        os.makedirs(character_path, exist_ok=True)
+        text_file = os.path.join(character_path, filename + ".txt")
         
-        print(json_dict)
-        with open(json_file, "w", encoding="utf8") as f: 
-            json.dump(json_dict, f, indent = 4)
-        print("text save to ", json_file)
-        # break
-        flush()
+        output_image = os.path.join(character_path, filename + ".webp")
+        try:
+            with Image.open(image_path) as image:
+                # exif = image.info['exif']
+                image = ImageOps.exif_transpose(image)
+                lossless, quality = (False, 90)
+                image.save(output_image, 'webp', optimize = True, quality = quality, lossless = lossless)
+                print("image save to ", output_image)
+        except:
+            print(f"Error in file {image_path}")
+            os.remove(image_path)
+            print(f"Removed file {image_path}")
+
+        with open(text_file, "w", encoding="utf8") as f: 
+            f.write(result)
+        print("text save to ", text_file)
+        
