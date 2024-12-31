@@ -59,7 +59,7 @@ Access the GUI through the provided local link.
 - **Directory Path**: Input the path to the directory containing images.
 - **Prefix**: Add a prefix to the generated captions.
 - **API Key (Optional)**: Enter your Mistral API key if not set in `api.json`.
-- **Include Additional CHI Types**: Select CHI types to include in caption generation.
+- **Exclude CHI Types**: Select CHI types to exclude in caption generation.
 - **Drop Rate for CHI**: Adjust the drop rate for CHI types to influence caption generation.
 
 ### Viewing Output
