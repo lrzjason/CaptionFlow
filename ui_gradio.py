@@ -75,9 +75,9 @@ def caption_directory(dir_path, prefix, api_key, selected_chi, drop_rate_CHI):
     if not os.path.isdir(dir_path):
         return "Invalid directory path."
     # Determine skip list: all optional CHI types not selected
-    selected_chi = selected_chi or []
-    optional_chi = [chi for chi in chi_options if chi not in selected_chi]
-    skip_CHI = optional_chi
+    # selected_chi = selected_chi or []
+    # optional_chi = [chi for chi in chi_options if chi not in selected_chi]
+    skip_CHI = selected_chi
     result = process_directory(dir_path, model, prefix, skip_CHI, drop_rate_CHI=drop_rate_CHI)
     return result
 
@@ -103,7 +103,7 @@ with demo:
         with gr.Column():
             prefix = gr.Textbox(label="Prefix", elem_classes="input-box")
     with gr.Row():  
-            selected_chi = gr.CheckboxGroup(choices=chi_options, label="The generation would exclude the following CHI Types if checked.", elem_classes="input-box")
+            selected_chi = gr.CheckboxGroup(choices=chi_options, label="The following CHI Types would be excluded if checked.", elem_classes="input-box")
             drop_rate_CHI = gr.Slider(minimum=0, maximum=1, step=0.01, label="Drop Rate for CHI", value=0.1, elem_classes="input-box")
             submit_button = gr.Button("Generate Captions")
     
