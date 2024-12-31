@@ -83,6 +83,7 @@ This project is licensed under the Apache-2.0 License.
 For inquiries, please contact the maintainer at [lrzjason@gmail.com].
 
 ## Acknowledgments
+Special thanks to deepseek v3 help to construct the ui and the readme.
 
 Thank you to SmilingWolf for the inspiration from wd14 tagger.
 
