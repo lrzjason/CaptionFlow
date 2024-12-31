@@ -23,9 +23,6 @@ class Llama3ModelWrapper(ModelWrapper):
                         "by different (possibly incorrect) people describing the same scene. "
                         "Be sure to describe everything, and avoid hallucination. Caption:{}")
         self.model = AutoModelForCausalLM.from_pretrained(self.model_repo_id, torch_dtype=self.dtype, device_map="auto")
-        
-        
-
     def execute(self,image=None,query=None,captions=""):
         model = self.model
         tokenizer = self.tokenizer

@@ -45,19 +45,6 @@ def proposal(image):
             "name":"Cogvlm",
             "model":CogvlmModelWrapper
         },
-        # {
-        #     "name":"DeepseekVL",
-        #     "model":DeepseekVLModelWrapper
-        # },
-        # {
-        #     "name":"llavaNext",
-        #     "model":LlavaNextModelWrapper
-        # },
-        
-        # {
-        #     "name":"florence",
-        #     "model":FlorenceLargeFtModelWrapper
-        # },
         {
             "name":"cogFlorence",
             "model":CogFlorenceLargeFtModelWrapper
@@ -66,10 +53,6 @@ def proposal(image):
             "name":"phi3Vision",
             "model":Phi3VisionModelWrapper
         },
-        # {
-        #     "name":"llavaSom",
-        #     "model":LlavaSomModelWrapper
-        # },
     ]
     for model_config in model_list:
         text_path = f"stage_1_proposal.{model_config['name']}"
