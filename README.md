@@ -50,6 +50,7 @@ Run the following command to launch the Gradio app:
 ```bash
 python ui_gradio.py
 ```
+![alt text](https://github.com/lrzjason/CaptionFlow/blob/main/image/screenshot.png)
 
 Access the GUI through the provided local link.
 
@@ -79,8 +80,27 @@ Contributions are welcome. Please submit issues or pull requests following stand
 This project is licensed under the Apache-2.0 License.
 
 ## Contact
+- **Twitter**: [@Lrzjason](https://twitter.com/Lrzjason)  
+- **Email**: lrzjason@gmail.com  
+- **QQ Group**: 866612947  
+- **Civitai**: [xiaozhijason](https://civitai.com/user/xiaozhijason)
 
-For inquiries, please contact the maintainer at [lrzjason@gmail.com].
+
+## Sponsors me for more open source projects:
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <p>Buy me a coffee:</p>
+        <img src="https://github.com/lrzjason/Comfyui-In-Context-Lora-Utils/blob/main/image/bmc_qr.png" alt="Buy Me a Coffee QR" width="200" />
+      </td>
+      <td align="center">
+        <p>WeChat:</p>
+        <img src="https://github.com/lrzjason/Comfyui-In-Context-Lora-Utils/blob/main/image/wechat.jpg" alt="WeChat QR" width="200" />
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## Acknowledgments
 Special thanks to deepseek v3 help to construct the ui and the readme.
