@@ -67,7 +67,7 @@ Captions are saved in the image directory with the specified prefix and are disp
 
 ## Advanced Options
 
-- **Customizing CHI Types**: Exclude certain CHI types by not selecting them.
+- **Customizing CHI Types**: Exclude certain CHI types by selecting them. Default all CHI included.
 - **Adjusting Drop Rates**: Fine-tune the drop rate for CHI types to influence caption generation.
 
 ## Contributing
@@ -76,11 +76,11 @@ Contributions are welcome. Please submit issues or pull requests following stand
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the Apache-2.0 License.
 
 ## Contact
 
-For inquiries, please contact the maintainer at [your_email@example.com].
+For inquiries, please contact the maintainer at [lrzjason@gmail.com].
 
 ## Acknowledgments
 
