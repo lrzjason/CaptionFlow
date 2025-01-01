@@ -8,7 +8,7 @@ Inspired by the paper "Visual Fact Checker: Enabling High-Fidelity Detailed Capt
 
 This project provides a user-friendly GUI to process batches of images and save captions. 
 
-The each image is processed by multiple Complex Human Instructions (CHI) to different aspect captions.
+The each image is processed by multiple Complex Human Instructions (CHI) for different aspect captions.
 
 For example: 
 - CHI_BLUR would focus on the blurriness of the image.
