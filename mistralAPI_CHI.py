@@ -103,6 +103,7 @@ def get_result(image_file, model, prefix, skip_CHI, drop_rate_CHI=0.1):
     summary_prompt = model.chi_json["CHI_SUMMARY"]["user_prompt"] + result_str
     print(f"Generating CHI_SUMMARY...")
     summary = generate_caption(image_file, model, model.chi_json["CHI_SUMMARY"]["system_prompt"], summary_prompt)
+    summary = summary.strip().replace("\n", " ")
     result["CHI_SUMMARY"] = summary
     
     with open(result_path, "w", encoding="utf-8") as f:
@@ -128,5 +129,10 @@ def process_directory(dir_path, model, prefix, skip_CHI, drop_rate_CHI=0.1):
     if not image_files:
         return "No image files found in the directory."
     for image_file in image_files:
+        ext = os.path.splitext(image_file)[-1].lower()
+        text_file = image_file.replace(ext, ".txt")
+        if os.path.exists(text_file):
+            print(f"Skipping {image_file} because {text_file} already exists.")
+            continue
         process_single_image(image_file, model, prefix, skip_CHI, drop_rate_CHI)
     return f"Processed {len(image_files)} images in {dir_path}"

@@ -2,8 +2,6 @@
     "dir_path": "F:\\ImageSet\\flux\\temp",
     "prefix": "",
     "api_key": "",
-    "selected_chi": [
-        "CHI_BLUR"
-    ],
-    "drop_rate_CHI": 0.2
+    "selected_chi": [],
+    "drop_rate_CHI": 0.1
 }
