@@ -72,9 +72,11 @@ def generate_caption(image_file, model, sys_prompt, prompt):
             attempt += 1
     return ERROR_MSG
 
-def get_result(image_file, model, prefix, skip_CHI, drop_rate_CHI=0.1):
-    basename = os.path.basename(image_file)
+def get_result(image_file, model, prefix, skip_CHI, drop_rate_CHI=0.1, tags_information=""):
+    if tags_information!="":
+        print("tags_information: ", tags_information)
     image_dir = os.path.dirname(image_file)
+    basename = os.path.basename(image_file)
     filename, ext = os.path.splitext(basename)
     result_path = os.path.join(image_dir, f"{filename}.json")
     result = {}
@@ -95,12 +97,17 @@ def get_result(image_file, model, prefix, skip_CHI, drop_rate_CHI=0.1):
             print(f"Generating {key}...")
             sys_prompt = model.chi_json[key]["system_prompt"]
             user_prompt = model.chi_json[key]["user_prompt"]
+            
+            # if tags_information != "":
+            #     user_prompt = user_prompt + " Parse and modify image captions using the results from an object detection model (may have hallucination). : " + tags_information
             caption_text = generate_caption(image_file, model, sys_prompt, user_prompt)
             new_result[key] = caption_text
     
     result.update(new_result)
     result_str = json.dumps(result)
     summary_prompt = model.chi_json["CHI_SUMMARY"]["user_prompt"] + result_str
+    if tags_information != "":
+        summary_prompt = summary_prompt + " Modify the summary using the tags from an object detection model (may have hallucination). Tags: " + tags_information
     print(f"Generating CHI_SUMMARY...")
     summary = generate_caption(image_file, model, model.chi_json["CHI_SUMMARY"]["system_prompt"], summary_prompt)
     summary = summary.strip().replace("\n", " ")
@@ -109,30 +116,4 @@ def get_result(image_file, model, prefix, skip_CHI, drop_rate_CHI=0.1):
     with open(result_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
     
-    caption_file = os.path.join(image_dir, f"{filename}.txt")
-    with open(caption_file, "w", encoding="utf-8") as f:
-        f.write(prefix + summary)
     return prefix + summary
-
-def process_single_image(image_file, model, prefix, skip_CHI, drop_rate_CHI=0.1):
-    try:
-        caption_text = get_result(image_file, model, prefix, skip_CHI, drop_rate_CHI)
-        print(f"Processed {image_file}")
-        return caption_text
-    except Exception as e:
-        print(f"Error processing {image_file}: {e}")
-        return None
-
-def process_directory(dir_path, model, prefix, skip_CHI, drop_rate_CHI=0.1):
-    image_exts = [".png", ".jpg", ".jpeg", ".webp"]
-    image_files = [f for f in glob.glob(os.path.join(dir_path, "**", "*"), recursive=True) if os.path.splitext(f)[-1].lower() in image_exts]
-    if not image_files:
-        return "No image files found in the directory."
-    for image_file in image_files:
-        ext = os.path.splitext(image_file)[-1].lower()
-        text_file = image_file.replace(ext, ".txt")
-        if os.path.exists(text_file):
-            print(f"Skipping {image_file} because {text_file} already exists.")
-            continue
-        process_single_image(image_file, model, prefix, skip_CHI, drop_rate_CHI)
-    return f"Processed {len(image_files)} images in {dir_path}"

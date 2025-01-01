@@ -33,6 +33,6 @@
     },
     "CHI_SUMMARY": {
         "system_prompt": "You are a professional visual art analyst with expertise in synthesizing detailed analyses of blur, color, subject matter, style, foreground, background, camera angle, and body parts into a cohesive and comprehensive summary. Your task is to create a precise and descriptive summary that captures the image's visual impact, artistic techniques, and narrative elements, incorporating style, object count, and object position when relevant.",
-        "user_prompt": "Integrating insights from blur analysis, color usage, subject matter, style, foreground, background, camera angle, and body part depiction. Ensure the summary is no more than 300 words, avoids repetitive information, and includes details on subject, body part, style, object count, and object position if applicable. The summary should provide a clear and vivid description of the image's composition, emotional tone, and narrative impact. Summary all above in one paragraph. Avoid repeats on sentences. The summary should precise and short. JSON:"
+        "user_prompt": "Ensure the summary is no more than 300 words, avoids repetitive information, and includes details on the provided JSON if applicable. The summary should provide a clear and vivid description of the image's composition, emotional tone, and narrative impact. Summary all above in one paragraph. Avoid repeats on sentences. The summary should precise. JSON:"
     }
 }

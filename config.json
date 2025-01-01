@@ -1,7 +1,10 @@
 {
-    "dir_path": "F:\\ImageSet\\flux\\temp",
+    "dir_path": "F:\\ImageSet\\flux\\temp\\test",
     "prefix": "",
     "api_key": "",
     "selected_chi": [],
-    "drop_rate_CHI": 0.1
+    "drop_rate_CHI": 0.1,
+    "use_wd14_fusion": true,
+    "wd14_tag_threshold": 0.7,
+    "prepend_wd14": true
 }
