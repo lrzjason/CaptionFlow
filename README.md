@@ -15,7 +15,7 @@ For example:
 - CHI_COLOR would focus on the color of the image.
 - etc
 
-After all CHI processed, a summary would be made based on all previous result and the caption would be refined to precise and accurate.
+After all CHI processed, a summary would be made based on all previous result and the caption would be refined as precise and accurate.
 
 ## Installation
 
